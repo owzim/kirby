@@ -704,7 +704,17 @@ class App
 
         // Responses
         if (is_a($input, 'Kirby\Http\Response') === true) {
-            return $input;
+            // inject headers from the global response configuration
+            // lazily (only if they are not already set);
+            // the case-insensitive nature of headers will be
+            // handled by PHP's `header()` function
+            $headers = array_merge($response->headers(), $input->headers());
+
+            return $response
+                ->code($input->code())
+                ->headers($headers)
+                ->type($input->type())
+                ->send($input->body());
         }
 
         // Pages
